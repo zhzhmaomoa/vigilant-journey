@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script type="module">
+        import kaplay from "https://unpkg.com/kaplay@3001/dist/kaplay.mjs";
+        const badgePool = ['cupid','unicorn','blackDog','greenDragon'],
+            badgeSortFromSmallToBig = ['cupid', 'unicorn', 'blackDog', 'greenDragon', 'snowman', 'whiteDog', 'holmes', 'dragon', 'pharaoh','honey', 'superman'];
+        kaplay();
+        function initBadges() {
+            loadSprite("blackDog", "./assets/blackDog.png");
+            loadSprite("cupid", "./assets/cupid.png");
+            loadSprite("dragon", "./assets/dragon.png");
+            loadSprite("greenDragon", "./assets/greenDragon.png");
+            loadSprite("holmes", "./assets/holmes.png");
+            loadSprite("honey", "./assets/honey.png");
+            loadSprite("pharaoh", "./assets/pharaoh.png");
+            loadSprite("snowman", "./assets/snowman.png");
+            loadSprite("superman", "./assets/superman.png");
+            loadSprite("unicorn", "./assets/unicorn.png");
+            loadSprite("whiteDog", "./assets/whiteDog.png");
+        }
+        function putBadge() {
+            const badgeName = choose(badgePool);
+            add([sprite(badgeName), pos(mousePos()), anchor("center"), area(), body(), badgeName]);
+            for(let i =0;i<badgeSortFromSmallToBig.length-1;i++){
+                onCollide(badgeSortFromSmallToBig[i], badgeSortFromSmallToBig[i], (badge1, badge2) => {
+                    if(badge1.parent&&badge2.parent){
+                        mergeBadge(badge1, badge2);
+                    }
+                });
+            }
+
+        }
+        function mergeBadge(badge1, badge2) {
+            const newBadgePos = [Math.abs(badge1.pos.x - badge2.pos.x) / 2+badge1.pos.x, Math.abs(badge1.pos.y - badge2.pos.y) / 2+badge1.pos.y],
+                newBadgeTag = getNewBadgeTag(badge1);
+            destroy(badge1);
+            destroy(badge2);
+            add([sprite(newBadgeTag), pos(...newBadgePos), anchor("center"), area(), body(), newBadgeTag]);
+        }
+        function getNewBadgeTag(oldBadge) {
+            for (let i = 0; i < badgeSortFromSmallToBig.length - 1; i++) {
+                if (oldBadge.is(badgeSortFromSmallToBig[i])) {
+                    return badgeSortFromSmallToBig[i + 1];
+                }
+            }
+        }
+        initBadges()
+        add([
+            rect(width(), 48),
+            pos(0, height() - 48),
+            outline(4),
+            area(),
+            body({ isStatic: true }),
+            color(127, 200, 255),
+        ]);
+        setGravity(1600);
+        let timer = null;
+        onMousePress(() => {
+            if(!timer){
+                putBadge()
+                timer = setTimeout(()=>{
+                    clearTimeout(timer);
+                    timer = null;
+                },500)
+            }
+        })
+    </script>
+</body>
+
+</html>`

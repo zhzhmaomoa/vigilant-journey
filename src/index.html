@@ -1,72 +1,68 @@
 <!DOCTYPE html>
 <html>
 
-<body>
-    <script type="module">
-        import kaplay from "https://unpkg.com/kaplay@3001/dist/kaplay.mjs";
-        const badgePool = ['cupid','unicorn','blackDog','greenDragon'],
-            badgeSortFromSmallToBig = ['cupid', 'unicorn', 'blackDog', 'greenDragon', 'snowman', 'whiteDog', 'holmes', 'dragon', 'pharaoh','honey', 'superman'];
-        kaplay();
-        function initBadges() {
-            loadSprite("blackDog", "./assets/blackDog.png");
-            loadSprite("cupid", "./assets/cupid.png");
-            loadSprite("dragon", "./assets/dragon.png");
-            loadSprite("greenDragon", "./assets/greenDragon.png");
-            loadSprite("holmes", "./assets/holmes.png");
-            loadSprite("honey", "./assets/honey.png");
-            loadSprite("pharaoh", "./assets/pharaoh.png");
-            loadSprite("snowman", "./assets/snowman.png");
-            loadSprite("superman", "./assets/superman.png");
-            loadSprite("unicorn", "./assets/unicorn.png");
-            loadSprite("whiteDog", "./assets/whiteDog.png");
-        }
-        function putBadge() {
-            const badgeName = choose(badgePool);
-            add([sprite(badgeName), pos(mousePos()), anchor("center"), area(), body(), badgeName]);
-            for(let i =0;i<badgeSortFromSmallToBig.length-1;i++){
-                onCollide(badgeSortFromSmallToBig[i], badgeSortFromSmallToBig[i], (badge1, badge2) => {
-                    if(badge1.parent&&badge2.parent){
-                        mergeBadge(badge1, badge2);
-                    }
-                });
-            }
+<head>
+    <script src="/lib/phaser.js"></script>
+</head>
 
-        }
-        function mergeBadge(badge1, badge2) {
-            const newBadgePos = [Math.abs(badge1.pos.x - badge2.pos.x) / 2+badge1.pos.x, Math.abs(badge1.pos.y - badge2.pos.y) / 2+badge1.pos.y],
-                newBadgeTag = getNewBadgeTag(badge1);
-            destroy(badge1);
-            destroy(badge2);
-            add([sprite(newBadgeTag), pos(...newBadgePos), anchor("center"), area(), body(), newBadgeTag]);
-        }
-        function getNewBadgeTag(oldBadge) {
-            for (let i = 0; i < badgeSortFromSmallToBig.length - 1; i++) {
-                if (oldBadge.is(badgeSortFromSmallToBig[i])) {
-                    return badgeSortFromSmallToBig[i + 1];
+<body>
+
+    <script>
+        var config = {
+            type: Phaser.AUTO,
+            width: 375,
+            height: 812,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
                 }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
             }
+        };
+
+        var game = new Phaser.Game(config);
+
+        function preload() {
+            this.load.image('blackDog', 'assets/blackDog.png');
+            this.load.image('cupid', 'assets/cupid.png');
+            this.load.image('dragon', 'assets/dragon.png');
+            this.load.image('greenDragon', 'assets/greenDragon.png');
+            this.load.image('holmes', 'assets/holmes.png');
+            this.load.image('honey', 'assets/honey.png');
+            this.load.image('pharaoh', 'assets/pharaoh.png');
+            this.load.image('snowman', 'assets/snowman.png');
+            this.load.image('superman', 'assets/superman.png');
+            this.load.image('unicorn', 'assets/unicorn.png');
+            this.load.image('whiteDog', 'assets/whiteDog.png');
+            this.load.image('ground', 'assets/platform.png');
         }
-        initBadges()
-        add([
-            rect(width(), 48),
-            pos(0, height() - 48),
-            outline(4),
-            area(),
-            body({ isStatic: true }),
-            color(127, 200, 255),
-        ]);
-        setGravity(1600);
-        let timer = null;
-        onMousePress(() => {
-            if(!timer){
-                putBadge()
-                timer = setTimeout(()=>{
-                    clearTimeout(timer);
-                    timer = null;
-                },500)
-            }
-        })
+        var platforms;
+        var player;
+        var cursors;
+        function create() {
+            platforms = this.physics.add.staticGroup();
+
+            platforms.create(190,5, 'ground');
+            platforms.create(370, 406, 'ground');
+            platforms.create(190, 807, 'ground');
+            platforms.create(5, 406, 'ground');
+
+            player = this.physics.add.sprite(100, 450, 'blackDog');
+            player.setBounce(0.2);
+            player.setCollideWorldBounds(true);
+            this.physics.add.collider(player, platforms);
+        }
+
+        function update() {
+        }
     </script>
+
 </body>
 
-</html>`
+</html>

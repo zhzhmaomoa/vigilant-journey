@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="/lib/phaser.js"></script>
+</head>
+
+<body>
+
+    <script>
+        var config = {
+            type: Phaser.AUTO,
+            width: '375px',
+            height: '812px',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        var game = new Phaser.Game(config);
+
+        function preload() {
+            this.load.image('blackDog', 'assets/blackDog.png');
+            this.load.image('cupid', 'assets/cupid.png');
+            this.load.image('dragon', 'assets/dragon.png');
+            this.load.image('greenDragon', 'assets/greenDragon.png');
+            this.load.image('holmes', 'assets/holmes.png');
+            this.load.image('honey', 'assets/honey.png');
+            this.load.image('pharaoh', 'assets/pharaoh.png');
+            this.load.image('snowman', 'assets/snowman.png');
+            this.load.image('superman', 'assets/superman.png');
+            this.load.image('unicorn', 'assets/unicorn.png');
+            this.load.image('whiteDog', 'assets/whiteDog.png');
+            this.load.image('bg', 'assets/bg.jpeg');
+        }
+        let players;
+        let bg;
+        function create() {
+            bg = this.add.image(187, 406, 'bg');
+            players = this.physics.add.group();
+            this.input.on('pointerdown', function (pointer) {
+                const player = players.create(pointer.worldX, pointer.worldY, 'blackDog');
+                player.setBounce(0.2);
+                player.setCollideWorldBounds(true);
+            },this);
+            this.physics.add.collider(players, players);
+        }
+
+        function update() {
+        }
+    </script>
+
+</body>
+
+</html>

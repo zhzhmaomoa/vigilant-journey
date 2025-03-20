@@ -8,59 +8,99 @@
 <body>
 
     <script>
-        var config = {
-            type: Phaser.AUTO,
-            width: 375,
-            height: 812,
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    gravity: { y: 300 },
-                    debug: false
-                }
-            },
-            scene: {
-                preload: preload,
-                create: create,
-                update: update
-            }
-        };
-
-        var game = new Phaser.Game(config);
-
-        function preload() {
-            this.load.image('blackDog', 'assets/blackDog.png');
-            this.load.image('cupid', 'assets/cupid.png');
-            this.load.image('dragon', 'assets/dragon.png');
-            this.load.image('greenDragon', 'assets/greenDragon.png');
-            this.load.image('holmes', 'assets/holmes.png');
-            this.load.image('honey', 'assets/honey.png');
-            this.load.image('pharaoh', 'assets/pharaoh.png');
-            this.load.image('snowman', 'assets/snowman.png');
-            this.load.image('superman', 'assets/superman.png');
-            this.load.image('unicorn', 'assets/unicorn.png');
-            this.load.image('whiteDog', 'assets/whiteDog.png');
-            this.load.image('ground', 'assets/platform.png');
+       const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 300 }, // 设置重力
+            debug: false // 调试模式
         }
-        var platforms;
-        var player;
-        var cursors;
-        function create() {
-            platforms = this.physics.add.staticGroup();
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
 
-            platforms.create(190,5, 'ground');
-            platforms.create(370, 406, 'ground');
-            platforms.create(190, 807, 'ground');
-            platforms.create(5, 406, 'ground');
+const game = new Phaser.Game(config);
 
-            player = this.physics.add.sprite(100, 450, 'blackDog');
-            player.setBounce(0.2);
-            player.setCollideWorldBounds(true);
-            this.physics.add.collider(player, platforms);
+let fruits; // 水果组
+let fruitTypes = ['cherry', 'strawberry', 'grape', 'orange', 'apple', 'melon']; // 水果类型
+let gameOver = false; // 游戏是否结束
+
+function preload() {
+    // 加载水果图片
+    this.load.image('cherry', 'assets/blackDog.png');
+    this.load.image('strawberry', 'assets/cupid.png');
+    this.load.image('grape', 'assets/dragon.png');
+    this.load.image('orange', 'assets/greenDragon.png');
+    this.load.image('apple', 'assets/holmes.png');
+    this.load.image('melon', 'assets/honey.png');
+}
+
+function create() {
+    // 初始化水果组
+    fruits = this.physics.add.group();
+    // 监听指针事件
+    this.input.on('pointerdown', startDrag);
+}
+
+function update() {
+    if (gameOver) return;
+
+    // 检测水果之间的碰撞
+    this.physics.collide(fruits, fruits, (fruit1, fruit2) => {
+        if (fruit1.texture.key === fruit2.texture.key) {
+            mergeFruits(this, fruit1, fruit2);
+        }else{
+            fruit1.setVelocity(Phaser.Math.Between(-200, 200), Phaser.Math.Between(-200, 200));
+             fruit2.setVelocity(Phaser.Math.Between(-200, 200), Phaser.Math.Between(-200, 200));
         }
+    });
 
-        function update() {
+    // 检测游戏结束
+    fruits.children.iterate((fruit) => {
+        if (fruit.y < 10) {
+            gameOver = true;
+            console.log('Game Over!');
         }
+    });
+}
+
+// 生成随机水果
+function spawnFruit(x,y,specifyType) {
+    const type = specifyType||Phaser.Math.RND.pick(fruitTypes);
+    const fruit = fruits.create(x, y, type);
+    fruit.setCollideWorldBounds(true);
+    fruit.setBounce(0.5);
+    fruit.setScale(0.5);
+    fruit.setDrag(100)
+}
+
+function startDrag(pointer) {
+    if ( gameOver) return;
+    console.log(pointer)
+    spawnFruit(pointer.x,pointer.y); // 生成新的水果
+}
+
+
+// 合并水果
+function mergeFruits(scene, fruit1, fruit2) {
+    const index = fruitTypes.indexOf(fruit1.texture.key);
+    if (index < fruitTypes.length - 1) {
+        const newType = fruitTypes[index + 1];
+        const x = (fruit1.x + fruit2.x) / 2;
+        const y = (fruit1.y + fruit2.y) / 2;
+
+        fruit1.destroy();
+        fruit2.destroy();
+        spawnFruit(x,y,newType)
+    }
+}
     </script>
 
 </body>
